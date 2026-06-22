@@ -2,6 +2,8 @@
 
 **One client-side-encrypted memory. Every model. Erasure you can prove.**
 
+> ⭐ **Star this repo and share it** — help every agent get portable, provable memory. [Share on X](https://x.com/intent/tweet?text=One%20encrypted%20memory%20for%20AI%20agents%20across%20Claude%2C%20DeepSeek%2C%20Qwen%2C%20Kimi%2C%20GLM%20%26%20GPT%20-%20with%20provable%20erasure.&url=https%3A%2F%2Fgithub.com%2Fcitw2%2Fdemo-cross-model-memory).
+
 This is a tiny, runnable demo of [SAIHM](https://saihm.coti.global) — non-custodial, post-quantum memory for AI agents. It stores three personal facts, grounds **two models at once** (Claude and DeepSeek by default — or Qwen, Kimi, GLM, GPT; your pick) in the *same* memory, then **forgets** one fact and shows that neither model can use it any more.
 
 It runs **fully offline with zero signup** against a local *blind* endpoint (included, ~90 lines), or against the real hosted SAIHM service with one environment variable.
