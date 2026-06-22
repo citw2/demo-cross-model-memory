@@ -63,9 +63,9 @@ What I know about you:
 Medically: nothing is remembered on that, so I won't guess.
 ```
 
-Two things just happened that a per-vendor "memory" feature can't do:
+Two things just happened that a per-vendor "memory" feature doesn't give you:
 
-1. **Portability across models.** The memory lives with *you*, not inside one model's account. The same store grounds Claude and DeepSeek — and would ground GPT, Qwen, Kimi, GLM, a local model, or your own agent, unchanged.
+1. **Portability across models.** Your memory lives with *you*, not inside one model's account — one live store that grounds Claude and DeepSeek at once, with no per-vendor export or lossy one-time import. The same store would ground GPT, Qwen, Kimi, GLM, a local model, or your own agent, unchanged.
 2. **Provable erasure.** `forget` crypto-shreds the cell (its wrapped key is destroyed). `recall` returns nothing for it, and every model loses access at once — not a soft "hidden" flag. This is what GDPR Art. 17 ("right to erasure") actually asks for.
 
 ## Choose your models (any two, side by side)
