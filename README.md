@@ -2,7 +2,7 @@
 
 **One client-side-encrypted memory. Every model. Erasure you can prove.**
 
-This is a tiny, runnable demo of [SAIHM](https://saihm.coti.global) — non-custodial, post-quantum memory for AI agents. It stores three personal facts, grounds **both Claude and DeepSeek** in the *same* memory, then **forgets** one fact and shows that neither model can use it any more.
+This is a tiny, runnable demo of [SAIHM](https://saihm.coti.global) — non-custodial, post-quantum memory for AI agents. It stores three personal facts, grounds **two models at once** (Claude and DeepSeek by default — or Qwen, Kimi, GLM, GPT; your pick) in the *same* memory, then **forgets** one fact and shows that neither model can use it any more.
 
 It runs **fully offline with zero signup** against a local *blind* endpoint (included, ~90 lines), or against the real hosted SAIHM service with one environment variable.
 
@@ -65,17 +65,26 @@ Two things just happened that a per-vendor "memory" feature can't do:
 1. **Portability across models.** The memory lives with *you*, not inside one model's account. The same store grounds Claude and DeepSeek — and would ground GPT, Qwen, Kimi, GLM, a local model, or your own agent, unchanged.
 2. **Provable erasure.** `forget` crypto-shreds the cell (its wrapped key is destroyed). `recall` returns nothing for it, and every model loses access at once — not a soft "hidden" flag. This is what GDPR Art. 17 ("right to erasure") actually asks for.
 
-## Live model answers (optional, BYOK)
+## Choose your models (any two, side by side)
 
-By default each model answers in a deterministic **offline mock** so the demo needs no keys. Add your own to get real answers:
+The demo runs two models next to each other to show the *same* memory grounding both. Pick them with `MODEL_A` / `MODEL_B` (default: `claude` + `deepseek`):
 
 ```
-export ANTHROPIC_API_KEY=...     # Claude  (claude-haiku-4-5)
-export DEEPSEEK_API_KEY=...      # DeepSeek (deepseek-chat)
-node demo.mjs
+MODEL_A=qwen MODEL_B=kimi node demo.mjs
 ```
 
-Set either, both, or neither — each model independently uses its key if present, or the mock if not. Keys are read from your environment and sent only to that model's own API.
+| `MODEL_*` value | Model | API key env (BYOK) |
+|---|---|---|
+| `claude`   | Claude (Anthropic) | `ANTHROPIC_API_KEY` |
+| `deepseek` | DeepSeek           | `DEEPSEEK_API_KEY` |
+| `qwen`     | Qwen (Alibaba)     | `DASHSCOPE_API_KEY` |
+| `kimi`     | Kimi (Moonshot)    | `MOONSHOT_API_KEY` |
+| `glm`      | GLM (Zhipu)        | `ZHIPU_API_KEY` |
+| `openai`   | GPT (OpenAI)       | `OPENAI_API_KEY` |
+
+With no key set, a model answers in a deterministic **offline mock**, so the demo runs end to end with zero setup. Set a key to get real answers; keys are read from your environment and sent only to that model's own API. The DeepSeek / Qwen / Kimi / GLM / GPT calls are the *same* OpenAI-compatible request — SAIHM reaches every model through one path. (Override a provider's base URL or model id without touching code via `SAIHM_<MODEL>_URL` / `SAIHM_<MODEL>_MODEL`.)
+
+That every one of these models can be grounded in — and erased from — a single store is the whole point: **your memory is yours, not locked inside one vendor.**
 
 ## Go live against the real SAIHM service
 

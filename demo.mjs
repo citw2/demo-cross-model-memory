@@ -25,25 +25,29 @@ import { randomBytes } from 'node:crypto';
 import { deriveIdentity, toHex, fromHex } from '@saihm/client-pro';
 import { SaihmProClient } from '@saihm/mcp-server-pro';
 import { startSandbox } from './sandbox.mjs';
-import { askClaude, askDeepSeek } from './models.mjs';
+import { ask, PROVIDERS } from './models.mjs';
 
 const line = (s = '') => console.log(s);
 const rule = () => line('-'.repeat(72));
 
 const QUESTION = 'Briefly: what do you know about me, and is there anything I should avoid medically?';
 
+// Pick any two models to run side by side: claude, deepseek, qwen, kimi, glm, openai.
+const MODEL_A = process.env.MODEL_A || 'claude';
+const MODEL_B = process.env.MODEL_B || 'deepseek';
+
 async function bothModels(facts) {
   const system =
     'You are a helpful assistant. Use ONLY these remembered facts about the user; ' +
     'do not invent or assume anything not listed.\nRemembered facts:\n' +
     (facts.length ? facts.map((f) => '- ' + f).join('\n') : '(none)');
-  const [claude, deepseek] = await Promise.all([
-    askClaude(system, QUESTION, facts),
-    askDeepSeek(system, QUESTION, facts),
+  const [a, b] = await Promise.all([
+    ask(MODEL_A, system, QUESTION, facts),
+    ask(MODEL_B, system, QUESTION, facts),
   ]);
-  line(claude);
+  line(a);
   line();
-  line(deepseek);
+  line(b);
 }
 
 async function connect() {
@@ -75,6 +79,7 @@ async function main() {
     line(`agent id : ${saihm.agentIdHash.slice(0, 16)}...`);
     line(`endpoint : ${where}`);
     line(`custody  : ${st.custody}  (the endpoint stores ciphertext only; it holds no key)`);
+    line(`models   : ${PROVIDERS[MODEL_A]?.label ?? MODEL_A} + ${PROVIDERS[MODEL_B]?.label ?? MODEL_B}  (set MODEL_A / MODEL_B to: ${Object.keys(PROVIDERS).join(', ')})`);
     line();
 
     // 1) Remember three personal facts — each sealed client-side before it leaves the process.

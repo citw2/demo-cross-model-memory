@@ -1,55 +1,64 @@
-// Minimal, dependency-free model callers. Bring your own key (BYOK):
+// Minimal, dependency-free model callers for the demo. Bring your own key (BYOK).
 //
-//   ANTHROPIC_API_KEY -> Claude   (api.anthropic.com)
-//   DEEPSEEK_API_KEY  -> DeepSeek (api.deepseek.com, OpenAI-compatible)
+// Pick any two models to run side by side via MODEL_A / MODEL_B (see demo.mjs).
+// Each provider reads its own API key from the environment; with no key set, that
+// model answers in a deterministic OFFLINE MOCK so the demo runs with zero setup.
+// The mock is grounded ONLY in the facts passed to it — so when SAIHM forgets a
+// fact, the mock stops citing it too, and you still see the erasure effect offline.
 //
-// With no key set, that model answers in deterministic OFFLINE MOCK mode so the
-// demo runs end to end with zero setup. The mock is grounded ONLY in the facts
-// passed to it — so when SAIHM forgets a fact, the mock stops citing it too,
-// and you still see the erasure effect with no API calls.
+// Endpoints/model ids below are the providers' standard OpenAI-compatible defaults.
+// Override either without editing code:  SAIHM_<KEY>_URL  and  SAIHM_<KEY>_MODEL
+// e.g. SAIHM_QWEN_MODEL=qwen2.5-72b-instruct
 
-const CLAUDE_MODEL = 'claude-haiku-4-5-20251001';
-const DEEPSEEK_MODEL = 'deepseek-chat';
+export const PROVIDERS = {
+  claude:   { label: 'Claude',   kind: 'anthropic', keyEnv: 'ANTHROPIC_API_KEY', url: 'https://api.anthropic.com/v1/messages', model: 'claude-haiku-4-5-20251001' },
+  deepseek: { label: 'DeepSeek', kind: 'openai',    keyEnv: 'DEEPSEEK_API_KEY',  url: 'https://api.deepseek.com/chat/completions', model: 'deepseek-chat' },
+  qwen:     { label: 'Qwen',     kind: 'openai',    keyEnv: 'DASHSCOPE_API_KEY', url: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions', model: 'qwen-plus' },
+  kimi:     { label: 'Kimi',     kind: 'openai',    keyEnv: 'MOONSHOT_API_KEY',  url: 'https://api.moonshot.ai/v1/chat/completions', model: 'moonshot-v1-8k' },
+  glm:      { label: 'GLM',      kind: 'openai',    keyEnv: 'ZHIPU_API_KEY',     url: 'https://open.bigmodel.cn/api/paas/v4/chat/completions', model: 'glm-4-flash' },
+  openai:   { label: 'GPT',      kind: 'openai',    keyEnv: 'OPENAI_API_KEY',    url: 'https://api.openai.com/v1/chat/completions', model: 'gpt-4o-mini' },
+};
 
-function mockAnswer(model, facts) {
+function mockAnswer(label, facts) {
   const known = facts.length ? facts.map((f) => '  - ' + f).join('\n') : '  (nothing remembered)';
   const allergy = facts.find((f) => /allerg/i.test(f));
   const medical = allergy
     ? `Medically: per "${allergy}", avoid the substance it names.`
     : `Medically: nothing is remembered on that, so I won't guess.`;
-  return `[${model} - offline mock]\nWhat I know about you:\n${known}\n${medical}`;
+  return `[${label} - offline mock]\nWhat I know about you:\n${known}\n${medical}`;
 }
 
-export async function askClaude(system, user, facts) {
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) return mockAnswer('Claude', facts);
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 256, system, messages: [{ role: 'user', content: user }] }),
-    });
-    if (!res.ok) return `[Claude - HTTP ${res.status}] check ANTHROPIC_API_KEY`;
-    const data = await res.json();
-    return `[Claude - live]\n` + (data?.content?.[0]?.text ?? '(no text)');
-  } catch (e) {
-    return `[Claude - transport error] ${e?.message ?? e}`;
-  }
-}
+export async function ask(providerKey, system, user, facts) {
+  const p = PROVIDERS[providerKey];
+  if (!p) return `[unknown model '${providerKey}' - try: ${Object.keys(PROVIDERS).join(', ')}]`;
+  const apiKey = process.env[p.keyEnv];
+  if (!apiKey) return mockAnswer(p.label, facts);
 
-export async function askDeepSeek(system, user, facts) {
-  const key = process.env.DEEPSEEK_API_KEY;
-  if (!key) return mockAnswer('DeepSeek', facts);
+  const KEY = providerKey.toUpperCase();
+  const url = process.env[`SAIHM_${KEY}_URL`] || p.url;
+  const model = process.env[`SAIHM_${KEY}_MODEL`] || p.model;
   try {
-    const res = await fetch('https://api.deepseek.com/chat/completions', {
+    let res;
+    if (p.kind === 'anthropic') {
+      res = await fetch(url, {
+        method: 'POST',
+        headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+        body: JSON.stringify({ model, max_tokens: 256, system, messages: [{ role: 'user', content: user }] }),
+      });
+      if (!res.ok) return `[${p.label} - HTTP ${res.status}] check ${p.keyEnv}`;
+      const data = await res.json();
+      return `[${p.label} - live]\n` + (data?.content?.[0]?.text ?? '(no text)');
+    }
+    // OpenAI-compatible (DeepSeek, Qwen, Kimi, GLM, GPT, and most others).
+    res = await fetch(url, {
       method: 'POST',
-      headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
-      body: JSON.stringify({ model: DEEPSEEK_MODEL, max_tokens: 256, messages: [{ role: 'system', content: system }, { role: 'user', content: user }] }),
+      headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ model, max_tokens: 256, messages: [{ role: 'system', content: system }, { role: 'user', content: user }] }),
     });
-    if (!res.ok) return `[DeepSeek - HTTP ${res.status}] check DEEPSEEK_API_KEY`;
+    if (!res.ok) return `[${p.label} - HTTP ${res.status}] check ${p.keyEnv}`;
     const data = await res.json();
-    return `[DeepSeek - live]\n` + (data?.choices?.[0]?.message?.content ?? '(no text)');
+    return `[${p.label} - live]\n` + (data?.choices?.[0]?.message?.content ?? '(no text)');
   } catch (e) {
-    return `[DeepSeek - transport error] ${e?.message ?? e}`;
+    return `[${p.label} - transport error] ${e?.message ?? e}`;
   }
 }
