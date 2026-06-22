@@ -12,7 +12,7 @@
 // sandbox (requires a paid SAIHM membership — see the README "Go live" section):
 //   export SAIHM_ENDPOINT_URL=https://saihm.coti.global/mcp
 //   export SAIHM_AUTH_HEADER="Bearer <your-onboard-JWT>"
-//   export SAIHM_MASTER_SECRET_HEX=<>=64 hex chars, held only by you>
+//   export SAIHM_MASTER_SECRET_HEX=<at least 64 hex chars, held only by you>
 //
 // What you will see:
 //   1. Three personal facts are SEALED client-side and stored on a blind endpoint
@@ -96,7 +96,7 @@ async function main() {
 
     // 2) The SAME memory grounds BOTH models.
     rule();
-    line('(1) One memory, every model -- Claude and DeepSeek, both grounded in SAIHM:');
+    line(`(1) One memory, every model -- ${PROVIDERS[MODEL_A]?.label ?? MODEL_A} and ${PROVIDERS[MODEL_B]?.label ?? MODEL_B}, both grounded in SAIHM:`);
     rule();
     await bothModels((await saihm.recall()).map((c) => c.plaintext));
     line();

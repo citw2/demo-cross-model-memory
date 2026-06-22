@@ -6,16 +6,16 @@
 // The mock is grounded ONLY in the facts passed to it — so when SAIHM forgets a
 // fact, the mock stops citing it too, and you still see the erasure effect offline.
 //
-// Endpoints/model ids below are the providers' standard OpenAI-compatible defaults.
-// Override either without editing code:  SAIHM_<KEY>_URL  and  SAIHM_<KEY>_MODEL
-// e.g. SAIHM_QWEN_MODEL=qwen2.5-72b-instruct
+// Endpoints/model ids below are the providers' standard OpenAI-compatible defaults,
+// current as of 2026-06. Model ids change often; override either without editing code:
+//   SAIHM_<KEY>_URL  and  SAIHM_<KEY>_MODEL   (e.g. SAIHM_QWEN_MODEL=qwen-plus-latest)
 
 export const PROVIDERS = {
   claude:   { label: 'Claude',   kind: 'anthropic', keyEnv: 'ANTHROPIC_API_KEY', url: 'https://api.anthropic.com/v1/messages', model: 'claude-haiku-4-5-20251001' },
-  deepseek: { label: 'DeepSeek', kind: 'openai',    keyEnv: 'DEEPSEEK_API_KEY',  url: 'https://api.deepseek.com/chat/completions', model: 'deepseek-chat' },
+  deepseek: { label: 'DeepSeek', kind: 'openai',    keyEnv: 'DEEPSEEK_API_KEY',  url: 'https://api.deepseek.com/chat/completions', model: 'deepseek-v4-flash' },
   qwen:     { label: 'Qwen',     kind: 'openai',    keyEnv: 'DASHSCOPE_API_KEY', url: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions', model: 'qwen-plus' },
   kimi:     { label: 'Kimi',     kind: 'openai',    keyEnv: 'MOONSHOT_API_KEY',  url: 'https://api.moonshot.ai/v1/chat/completions', model: 'moonshot-v1-8k' },
-  glm:      { label: 'GLM',      kind: 'openai',    keyEnv: 'ZHIPU_API_KEY',     url: 'https://open.bigmodel.cn/api/paas/v4/chat/completions', model: 'glm-4-flash' },
+  glm:      { label: 'GLM',      kind: 'openai',    keyEnv: 'ZHIPUAI_API_KEY',   url: 'https://open.bigmodel.cn/api/paas/v4/chat/completions', model: 'glm-4.5-flash' },
   openai:   { label: 'GPT',      kind: 'openai',    keyEnv: 'OPENAI_API_KEY',    url: 'https://api.openai.com/v1/chat/completions', model: 'gpt-4o-mini' },
 };
 
