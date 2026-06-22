@@ -113,6 +113,7 @@ Your master secret never leaves your machine; the endpoint only ever receives ci
 - **[`@saihm/mcp-server-pro`](https://github.com/SAIHM-Admin/saihm-mcp-server-pro)** — the production sealing client this demo uses ([npm](https://www.npmjs.com/package/@saihm/mcp-server-pro)).
 - **[`@saihm/client-pro`](https://github.com/SAIHM-Admin/saihm-client-pro)** — the post-quantum client crypto library ([npm](https://www.npmjs.com/package/@saihm/client-pro)).
 - **[`@saihm/mcp-server`](https://github.com/SAIHM-Admin/saihm-mcp)** — the open MCP thin-client for the SAIHM transport ([npm](https://www.npmjs.com/package/@saihm/mcp-server)).
+- **Learn more:** [AI memory needs a standard](https://saihm.coti.global/blog/2026-05-18-ai-memory-needs-a-standard) · [What makes SAIHM different](https://saihm.coti.global/blog/2026-05-31-what-makes-saihm-different).
 - **Join the protocol:** [saihm.coti.global/join](https://saihm.coti.global/join).
 
 ## License
